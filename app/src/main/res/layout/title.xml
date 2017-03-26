@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:background="#42a9e9">
+    <Button
+        android:id="@+id/left_btn"
+        android:layout_width="30dp"
+        android:layout_height="25dp"
+        android:layout_alignParentLeft="true"
+        android:gravity="center"
+        android:layout_centerVertical="true"/>
+
+    <TextView
+        android:id="@+id/title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        android:text="Load..."
+        android:textSize="16sp"
+        android:textColor="#ffffff"
+        android:maxEms="10"/>
+
+    <Button
+        android:id="@+id/right_btn"
+        android:layout_width="35dp"
+        android:layout_height="25dp"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:textColor="#fff"/>
+</RelativeLayout>

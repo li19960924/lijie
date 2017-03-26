@@ -1,44 +1,47 @@
 package cn.edu.cuit.videogo;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.widget.TextView;
+import android.support.v7.app.AppCompatActivity;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener{
+import java.lang.reflect.Field;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,View.OnClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
-    // Example of a call to a native method
-    TextView tv = (TextView) findViewById(R.id.sample_text);
-    tv.setText(stringFromJNI());
+        if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.KITKAT){  //大于4.4 通知栏透明
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            setContentView(R.layout.activity_main);
+            LinearLayout.LayoutParams layoutParams= (LinearLayout.LayoutParams) findViewById(R.id.head).getLayoutParams();
+            layoutParams.height=getHight();
+            layoutParams.width= WindowManager.LayoutParams.MATCH_PARENT;
+            findViewById(R.id.head).setLayoutParams(layoutParams);
+        }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        findViewById(R.id.left_btn).setOnClickListener(this);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(this);
+
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout); //
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer,R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -46,6 +49,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         navigationView.setNavigationItemSelectedListener(this);
 
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -63,20 +68,6 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -103,14 +94,45 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         return true;
     }
 
+
     /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
+     *
+     * @return 调用c/c++代码
      */
     public native String stringFromJNI();
 
-    // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
+    }
+
+
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId()==R.id.left_btn){
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.openDrawer(GravityCompat.START);
+        }
+        if (view.getId()==R.id.fab){
+            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
+    }
+
+    //获取系统栏高度
+    private int getHight(){
+        Class<?> c;
+        Object obj;
+        Field field;
+        int x,sbar=0;
+        try{
+            c=Class.forName("com.android.internal.R$dimen");
+            obj=c.newInstance();
+            field=c.getField("status_bar_height");
+            x=Integer.parseInt(field.get(obj).toString());
+            sbar=getApplicationContext().getResources().getDimensionPixelSize(x);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return sbar;
     }
 }
